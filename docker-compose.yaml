@@ -1,0 +1,107 @@
+# version: '3.9'
+
+# services:
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     env_file:
+#       - .env.dev
+#     ports:
+#       - "${PORT}:${PORT}"
+#     volumes:
+#       - .:/app
+#     networks:
+#       - app-network
+#     depends_on:
+#       - db
+
+#   db:
+#     image: mariadb:latest
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: '${DATABASE_NAME}'
+#       MYSQL_ROOT_USER: '${DATABASE_USERNAME}'
+#       MYSQL_ROOT_PASSWORD: '${DATABASE_PASSWORD}'
+#       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+#     ports:
+#       - "3306:3306"
+#     env_file:
+#       - .env
+#     networks:
+#       - app-network
+#     volumes:
+#       - ./mysql_data/db:/var/lib/mysql
+
+#   phpmyadmin:
+#     image: phpmyadmin:latest
+#     container_name: phpmyadmin
+#     restart: always
+#     environment:
+#       MYSQL_USERNAME: '${DATABASE_USERNAME}'
+#       PMA_HOST: db # Hostname of the MariaDB service
+#       MYSQL_ROOT_PASSWORD: '${DATABASE_PASSWORD}' # Root password for MariaDB
+#     ports:
+#       - 8080:80 # Access phpMyAdmin via http://localhost:8080
+#     depends_on:
+#       - db
+#     networks:
+#       - app-network
+# networks:
+#   app-network:
+#     driver: bridge
+
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./ .env.dev # Reference to the correct .env file
+    ports:
+      - '${PORT}:${PORT}' # Ensure PORT variable is set
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: '${DATABASE_NAME}'
+      MYSQL_ROOT_USER: '${DATABASE_USERNAME}'
+      MYSQL_ROOT_PASSWORD: '${DATABASE_PASSWORD}'
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+    ports:
+      - '3306:3306'
+    env_file:
+      - ./ .env.dev # Reference the same .env file
+    networks:
+      - app-network
+    volumes:
+      - ./mysql_data/db:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    env_file:
+      - ./ .env.dev 
+    environment:
+      MYSQL_USERNAME: '${DATABASE_USERNAME}'
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: '${DATABASE_PASSWORD}'
+    ports:
+      - '8080:80'
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
